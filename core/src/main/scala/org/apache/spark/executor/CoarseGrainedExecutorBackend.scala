@@ -332,7 +332,7 @@ private[spark] class CoarseGrainedExecutorBackend(
       printUsageAndExit()
     }
 
-    createEnv(driverUrl, executorId, hostname, cores, appId, workerUrl, userClassPath)
+    createEnv(driverUrl, executorId, hostname, cores, appId, workerUrl, userClassPath,()=>{})
 
     // han sampler 1 begin
     val SAMPLING_PERIOD: Long = 10
