@@ -251,7 +251,7 @@ private[spark] class CoarseGrainedExecutorBackend(
     val NUMCPU = 8;
     var process = ""
 
-    val topout = Seq("/bin/sh", "-c", "top -n 1 -b -p " + processID + " | tail -1").!!.trim.split(" +")
+    val topout = Seq("/bin/sh", "-c", "top -n 1 -b -p " + processID + " | grep "+processID + " | tail -1").!!.trim.split(" +")
     val len = topout(5).length
     if(topout(5).endsWith("g")) { memory = 1024L*1024L*1024L*topout(5).take(len-1).toDouble }
     else if(topout(5).endsWith("m")) { memory = 1024L*1024L*topout(5).take(len-1).toDouble }
