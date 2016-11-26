@@ -184,7 +184,10 @@ private[spark] class CoarseGrainedExecutorBackend(
                        appId: String,
                        workerUrl: Option[String],
                        userClassPath: Seq[URL]) {
-
+        val env0 = SparkEnv.get
+        if(env0 == null){
+          createEnv(driverUrl, executorId, hostname, cores, appId, workerUrl, userClassPath)
+        }
         SparkHadoopUtil.get.runAsSparkUser { () =>
         val env = SparkEnv.get
 
