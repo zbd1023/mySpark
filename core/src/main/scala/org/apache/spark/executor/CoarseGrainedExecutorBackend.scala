@@ -188,21 +188,34 @@ private[spark] class CoarseGrainedExecutorBackend(
         // if(env0 == null){
         //   createEnv(driverUrl, executorId, hostname, cores, appId, workerUrl, userClassPath)
         // }
-        SparkHadoopUtil.get.runAsSparkUser { () =>
+        // SparkHadoopUtil.get.runAsSparkUser { () =>
         var env = SparkEnv.get
         if(env == null){
-          createEnv(driverUrl, executorId, hostname, cores, appId, workerUrl, userClassPath)
-        }
-        env = SparkEnv.get
-
-          env.rpcEnv.setupEndpoint("Executor", new CoarseGrainedExecutorBackend(
-            env.rpcEnv, driverUrl, executorId, hostname, cores, userClassPath, env))
-          workerUrl.foreach { url =>
-            env.rpcEnv.setupEndpoint("WorkerWatcher", new WorkerWatcher(env.rpcEnv, url))
+          createEnv(driverUrl, executorId, hostname, cores, appId, workerUrl, userClassPath,
+            () => {
+              env = SparkEnv.get
+              env.rpcEnv.setupEndpoint("Executor", new CoarseGrainedExecutorBackend(
+                env.rpcEnv, driverUrl, executorId, hostname, cores, userClassPath, env))
+              workerUrl.foreach { url =>
+                env.rpcEnv.setupEndpoint("WorkerWatcher", new WorkerWatcher(env.rpcEnv, url))
+              }
+              env.rpcEnv.awaitTermination()
+              SparkHadoopUtil.get.stopExecutorDelegationTokenRenewer()
+            })
+        } else {
+          SparkHadoopUtil.get.runAsSparkUser{ () =>
+            env = SparkEnv.get
+            env.rpcEnv.setupEndpoint("Executor", new CoarseGrainedExecutorBackend(
+              env.rpcEnv, driverUrl, executorId, hostname, cores, userClassPath, env))
+            workerUrl.foreach { url =>
+              env.rpcEnv.setupEndpoint("WorkerWatcher", new WorkerWatcher(env.rpcEnv, url))
+            }
+            env.rpcEnv.awaitTermination()
+            SparkHadoopUtil.get.stopExecutorDelegationTokenRenewer()
           }
-          env.rpcEnv.awaitTermination()
-          SparkHadoopUtil.get.stopExecutorDelegationTokenRenewer()
         }
+
+        // }
       }
 
   private def createEnv(
@@ -212,7 +225,8 @@ private[spark] class CoarseGrainedExecutorBackend(
                          cores: Int,
                          appId: String,
                          workerUrl: Option[String],
-                         userClassPath: Seq[URL]) {
+                         userClassPath: Seq[URL],
+                         func: () => Unit) {
     Utils.initDaemon(log)
 
     SparkHadoopUtil.get.runAsSparkUser { () =>
@@ -249,6 +263,7 @@ private[spark] class CoarseGrainedExecutorBackend(
           driverConf.get("spark.yarn.credentials.file"))
         SparkHadoopUtil.get.startExecutorDelegationTokenRenewer(driverConf)
       }
+      def run: Unit = func()
     }
   }
 
