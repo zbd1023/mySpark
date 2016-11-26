@@ -189,10 +189,11 @@ private[spark] class CoarseGrainedExecutorBackend(
         //   createEnv(driverUrl, executorId, hostname, cores, appId, workerUrl, userClassPath)
         // }
         SparkHadoopUtil.get.runAsSparkUser { () =>
-        val env = SparkEnv.get
+        var env = SparkEnv.get
         if(env == null){
           createEnv(driverUrl, executorId, hostname, cores, appId, workerUrl, userClassPath)
         }
+        env = SparkEnv.get
 
           env.rpcEnv.setupEndpoint("Executor", new CoarseGrainedExecutorBackend(
             env.rpcEnv, driverUrl, executorId, hostname, cores, userClassPath, env))
