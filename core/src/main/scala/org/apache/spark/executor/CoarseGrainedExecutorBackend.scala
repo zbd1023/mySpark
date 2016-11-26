@@ -477,7 +477,10 @@ private[spark] class CoarseGrainedExecutorBackend(
           val mm = env.memoryManager
           s += "\t" + mm.storageMemoryUsed
           s += "\t" + mm.executionMemoryUsed
-        } catch{ case e:Exception => e.printStackTrace() }
+        } catch{ case e:Exception => e.printStackTrace()
+          s += "\t" + 0
+          s += "\t" + 0
+        }
 
         if (i % TIMESTAMP_PERIOD == 0) {
           var time: String = dateFormat.format(new Date())
