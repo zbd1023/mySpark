@@ -555,7 +555,7 @@ private[spark] class CoarseGrainedExecutorBackend(
 
       }
     }
-    val f = ex.scheduleAtFixedRate(task, 0, SAMPLING_PERIOD, TimeUnit.MILLISECONDS)
+    //val f = ex.scheduleAtFixedRate(task, 0, SAMPLING_PERIOD, TimeUnit.MILLISECONDS)
     // han sampler 1 end
 
     run(driverUrl, executorId, hostname, cores, appId, workerUrl, userClassPath)
