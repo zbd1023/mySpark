@@ -279,7 +279,7 @@ private[spark] class CoarseGrainedExecutorBackend(
 // val processID = 14
 val pb = Process(s"top -n 1 -b -p $processID")
     val p = pb.run
-    Thread.sleep(20)
+    // Thread.sleep(20)
     val pio = new ProcessIO(_ => (),
                                   stdout => scala.io.Source.fromInputStream(stdout)
                                   .getLines.foreach( line =>
