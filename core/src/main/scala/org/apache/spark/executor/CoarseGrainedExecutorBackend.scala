@@ -493,7 +493,7 @@ private[spark] class CoarseGrainedExecutorBackend(
             s += "\t" + mm.storageMemoryUsed
             s += "\t" + mm.executionMemoryUsed
           }
-        }
+        // }
 
         if (i % TIMESTAMP_PERIOD == 0) {
           var time: String = dateFormat.format(new Date())
