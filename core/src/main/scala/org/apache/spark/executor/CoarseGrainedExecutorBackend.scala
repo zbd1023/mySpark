@@ -271,16 +271,34 @@ private[spark] class CoarseGrainedExecutorBackend(
     var memory = 0d;
     var CPU = 0d;
     val NUMCPU = 8;
-    var process = ""
+    // var process = ""
 
-    val pb = Process(s""" top -n 1 -b -p $processID | grep $processID | tail -1 """)
+    // object HelloWorld {
+  //  def main(args: Array[String]) {
+// import scala.sys.process._
+// val processID = 14
+val pb = Process(s"top -n 1 -b -p $processID")
     val p = pb.run
     val exitCode = p.exitValue
     val pio = new ProcessIO(_ => (),
                                   stdout => scala.io.Source.fromInputStream(stdout)
-                                  .getLines.foreach(println),
+                                  .getLines.foreach( line =>
+                                        if (line.contains(processID)) {
+                                            val topout = line.trim.split(" +")
+                                            val len = topout(5).length
+                                            if(topout(5).endsWith("g")) { memory = 1024L*1024L*1024L*topout(5).take(len-1).toDouble }
+                                            else if(topout(5).endsWith("m")) { memory = 1024L*1024L*topout(5).take(len-1).toDouble }
+                                            else if(topout(5).endsWith("k")) { memory = 1024L*topout(5).take(len-1).toDouble }
+                                            else { memory = topout(5).toDouble }
+                                            CPU = topout(8).toDouble / NUMCPU
+                                        }
+                                    ),
                                   _ => ())
     pb.run(pio)
+    // println(s"CPU=$CPU")
+    // println(s"memory=$memory")
+  //  }
+// }
     // val myStr = "top -n 1 -b -p "+processID !!
 
     // val topout2 = myStr #| "tail -2" #| "head -1" !!
