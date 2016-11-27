@@ -274,6 +274,7 @@ private[spark] class CoarseGrainedExecutorBackend(
     var process = ""
 
     val topout = Seq("/bin/sh", "-c", "top -n 1 -b -p " + processID + " | grep "+processID + " | tail -1").!!.trim.split(" +")
+
     val len = topout(5).length
     if(topout(5).endsWith("g")) { memory = 1024L*1024L*1024L*topout(5).take(len-1).toDouble }
     else if(topout(5).endsWith("m")) { memory = 1024L*1024L*topout(5).take(len-1).toDouble }
@@ -472,14 +473,26 @@ private[spark] class CoarseGrainedExecutorBackend(
         try { res = getProcessUsedMemoryAndCPU(nodemanagerPID); s += "\t" + res._1 + "\t" + res._2 } catch{ case e:Exception => e.printStackTrace() }
 
         // Get storage and execution memory usage
-        try {
-          val env = SparkEnv.get
-          val mm = env.memoryManager
-          s += "\t" + mm.storageMemoryUsed
-          s += "\t" + mm.executionMemoryUsed
-        } catch{ case e:Exception => e.printStackTrace()
-          s += "\t" + 0
-          s += "\t" + 0
+        // try {
+        //   val env = SparkEnv.get
+        //   val mm = env.memoryManager
+        //   s += "\t" + mm.storageMemoryUsed
+        //   s += "\t" + mm.executionMemoryUsed
+        // } catch{ case e:Exception => e.printStackTrace()
+        //   s += "\t" + 0
+        //   s += "\t" + 0
+        // }
+        var env = SparkEnv.get
+        if(env == null){
+          createEnv(driverUrl, executorId, hostname, cores, appId, workerUrl, userClassPath,
+            () => {
+                s += "\t" + mm.storageMemoryUsed
+                s += "\t" + mm.executionMemoryUsed
+            })
+        } else {
+            s += "\t" + mm.storageMemoryUsed
+            s += "\t" + mm.executionMemoryUsed
+          }
         }
 
         if (i % TIMESTAMP_PERIOD == 0) {
