@@ -486,10 +486,13 @@ private[spark] class CoarseGrainedExecutorBackend(
         if(env == null){
           createEnv(driverUrl, executorId, hostname, cores, appId, workerUrl, userClassPath,
             () => {
+                env = SparkEnv.get
+                val mm = env.memoryManager
                 s += "\t" + mm.storageMemoryUsed
                 s += "\t" + mm.executionMemoryUsed
             })
         } else {
+            val mm = env.memoryManager
             s += "\t" + mm.storageMemoryUsed
             s += "\t" + mm.executionMemoryUsed
           }
