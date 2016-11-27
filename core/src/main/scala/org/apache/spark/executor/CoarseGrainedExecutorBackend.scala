@@ -564,9 +564,9 @@ private[spark] class CoarseGrainedExecutorBackend(
     // avgUsedCPU /= numberOfCPUSamples
     // logInfo("Average used CPU of executor " + executorId + ": " + avgUsedCPU)
 
-    f.cancel(true)
-    writer.flush()
-    writer.close()
+    // f.cancel(true)
+    // writer.flush()
+    // writer.close()
 
 
 
