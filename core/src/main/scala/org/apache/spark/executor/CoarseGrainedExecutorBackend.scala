@@ -273,8 +273,7 @@ private[spark] class CoarseGrainedExecutorBackend(
     val NUMCPU = 8;
     var process = ""
 
-    // val myStr = "top -n 1 -b -p "+processID
-    val myStr = "top -n 1 -b -p "+5690
+    val myStr = "top -n 1 -b -p "+processID
     val topout2 = myStr #| "tail -2" #| "head -1" !!
     val topout = topout2.trim.split(" +")
 
