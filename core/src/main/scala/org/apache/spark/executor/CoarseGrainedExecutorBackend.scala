@@ -277,24 +277,24 @@ private[spark] class CoarseGrainedExecutorBackend(
   //  def main(args: Array[String]) {
 // import scala.sys.process._
 // val processID = 14
-val pb = Process(s"top -n 1 -b -p $processID")
-    val p = pb.run
-    // Thread.sleep(20)
-    val pio = new ProcessIO(_ => (),
-                                  stdout => scala.io.Source.fromInputStream(stdout)
-                                  .getLines.foreach( line =>
-                                        if (line.contains(processID)) {
-                                            val topout = line.trim.split(" +")
-                                            val len = topout(5).length
-                                            if(topout(5).endsWith("g")) { memory = 1024L*1024L*1024L*topout(5).take(len-1).toDouble }
-                                            else if(topout(5).endsWith("m")) { memory = 1024L*1024L*topout(5).take(len-1).toDouble }
-                                            else if(topout(5).endsWith("k")) { memory = 1024L*topout(5).take(len-1).toDouble }
-                                            else { memory = topout(5).toDouble }
-                                            CPU = topout(8).toDouble / NUMCPU
-                                        }
-                                    ),
-                                  _ => ())
-    pb.run(pio)
+// val pb = Process(s"top -n 1 -b -p $processID")
+//     val p = pb.run
+//     // Thread.sleep(20)
+//     val pio = new ProcessIO(_ => (),
+//                                   stdout => scala.io.Source.fromInputStream(stdout)
+//                                   .getLines.foreach( line =>
+//                                         if (line.contains(processID)) {
+//                                             val topout = line.trim.split(" +")
+//                                             val len = topout(5).length
+//                                             if(topout(5).endsWith("g")) { memory = 1024L*1024L*1024L*topout(5).take(len-1).toDouble }
+//                                             else if(topout(5).endsWith("m")) { memory = 1024L*1024L*topout(5).take(len-1).toDouble }
+//                                             else if(topout(5).endsWith("k")) { memory = 1024L*topout(5).take(len-1).toDouble }
+//                                             else { memory = topout(5).toDouble }
+//                                             CPU = topout(8).toDouble / NUMCPU
+//                                         }
+//                                     ),
+//                                   _ => ())
+//     pb.run(pio)
     // println(s"CPU=$CPU")
     // println(s"memory=$memory")
   //  }
